@@ -22,6 +22,7 @@ abstract contract ArrayManipulation is Ownable {
     address[] nftMemberships;
 
     function addToArray(address nftAddress) public virtual override onlyOwner {
+        require(nftAddress != address(0), "Address should be valid");
         nftMemberships.push(nftAddress);
     }
 
