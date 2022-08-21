@@ -1,15 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.8;
 
-contract ArrayExample {
-    address[] nftMemberships;
-    address owner;
+contract Ownable {
+    address public owner;
 
-    constructor() {
-        owner = msg.sender;
+    constructor(address ownerOverride) {
+        owner = ownerOverride == address(0) ? msg.sender : ownerOverride;
     }
 
-    function addToArray(address nftAddress) public {
+    modifier onlyOwner() {
+        require(owner == msg.sender, "not an owner");
+        _;
+    }
+
+    function addToArray(address nftAddress) public virtual onlyOwner {
+        nftAddress = address(0);
+    }
+}
+
+abstract contract ArrayManipulation is Ownable {
+    address[] nftMemberships;
+
+    function addToArray(address nftAddress) public virtual override onlyOwner {
         nftMemberships.push(nftAddress);
     }
 
@@ -18,8 +30,17 @@ contract ArrayExample {
     }
 
     function getElementOfArray(uint256 index) public view returns (address) {
+        require(index < 0, "Index should be positive");
         uint256 arrayLenght = getNFTMemberships();
         require(arrayLenght > index, "Something bad happened");
         return nftMemberships[index];
+    }
+}
+
+contract MyContract is Ownable, ArrayManipulation {
+    constructor(address _owner) Ownable(_owner) {}
+
+    function addToArray(address nftAddress) public override(Ownable, ArrayManipulation) onlyOwner {
+        ArrayManipulation.addToArray(nftAddress);
     }
 }
