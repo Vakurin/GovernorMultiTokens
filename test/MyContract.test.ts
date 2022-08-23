@@ -10,8 +10,6 @@ const {
 } = require('@openzeppelin/test-helpers');
 
 
-
-
 describe("MyContract", function () {
   let owner: any;
   let myContract: any;
