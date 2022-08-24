@@ -4,6 +4,11 @@ import "@nomiclabs/hardhat-web3";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.9",
+  networks: {
+    hardhat: {
+      allowUnlimitedContractSize: true
+    }
+  },
 };
 
 export default config;
