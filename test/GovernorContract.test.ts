@@ -10,17 +10,31 @@ const {
 } = require('@openzeppelin/test-helpers');
 
 
-describe("GovernorMultipleTokensVote", function () {
+describe("GovernorContract", function () {
   let owner: any;
   let addr1: any;
   let addr2: any;
-  let myContract: any;
+  let governorContract: any;
   let nft: any;
 
   beforeEach(async function() {
     [owner, addr1, addr2] = await ethers.getSigners();
-  
-
+    const NFTContract = await ethers.getContractFactory("NFT", owner);
+    nft = await NFTContract.deploy();
+    await nft.deployed();
+    const MyContract = await ethers.getContractFactory("GovernoContract", owner);
+    governorContract = await MyContract.deploy('MaxDAO', nft.address, 6545, 3);
+    await governorContract.deployed();
   })
+
+  describe('Check dao', function () {
+    it('Should be version 2.0', async function(){
+      const version = await governorContract.version()
+      console.log("\n\n", version)
+      expect(version).to.eq('2.0')
+    })
+  })
+
+  
 
 });

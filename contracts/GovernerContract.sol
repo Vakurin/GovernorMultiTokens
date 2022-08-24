@@ -109,6 +109,10 @@ contract GovernoContract is
         return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
+    function version() public pure override returns (string memory) {
+        return "2.0";
+    }
+
     function incrementExecutedProposals() public onlyGovernance {
         _executedProposals++;
     }
