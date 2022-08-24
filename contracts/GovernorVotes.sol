@@ -4,7 +4,7 @@ pragma solidity ^0.8.8;
 import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
-abstract contract GovernorMultipleVotes is Governor {
+abstract contract GovernorVotes is Governor {
     IVotes public immutable token;
 
     constructor(IVotes tokenAddress) {
