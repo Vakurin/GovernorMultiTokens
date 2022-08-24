@@ -4,12 +4,10 @@ pragma solidity ^0.8.8;
 import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-// import "./GovernorMultipleVotes.sol";
+import "./GovernorVotesQuorumFraction.sol";
+import "./GovernorVotes.sol";
 
 contract GovernoContract is
     Governor,
