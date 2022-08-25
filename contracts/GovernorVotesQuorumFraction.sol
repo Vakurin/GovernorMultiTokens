@@ -74,7 +74,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      */
     function quorum(uint256 blockNumber) public view virtual override returns (uint256) {
         return
-            (token.getPastTotalSupply(blockNumber) * quorumNumerator(blockNumber)) /
+            (token[0].getPastTotalSupply(blockNumber) * quorumNumerator(blockNumber)) /
             quorumDenominator();
     }
 
