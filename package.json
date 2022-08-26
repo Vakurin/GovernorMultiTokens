@@ -24,6 +24,7 @@
     "web3": "^1.7.5"
   },
   "dependencies": {
+    "@chainlink/contracts": "^0.4.1",
     "@openzeppelin/contracts": "^4.7.3",
     "hardhat-deploy": "^0.11.12"
   }
