@@ -35,6 +35,19 @@ describe("GovernorContract", function () {
     })
   })
 
+  describe("Check implementation of DAO", function () {
+    it('Should be one initital NFT', async function() {
+      const numberOfNFT = await governorContract.getTokensLength()
+      expect(numberOfNFT).to.eq(1)
+    })
+
+    it("Add membership and change lenght", async function() {
+      await governorContract.addToken(nft.address)
+      const numberOfNFT = await governorContract.getTokensLength()
+      expect(numberOfNFT).to.eq(2)
+    })
+  })
+
   
 
 });
