@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./GovernorVotesQuorumFraction.sol";
 import "./GovernorVotes.sol";
 
-contract GovernoContract is
+contract GovernorContract is
     Governor,
     GovernorSettings,
     GovernorCountingSimple,
