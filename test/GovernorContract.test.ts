@@ -8,20 +8,24 @@ const {
   expectEvent,  // Assertions for emitted events
   expectRevert, // Assertions for transactions that should fail
 } = require('@openzeppelin/test-helpers');
-
+import {NFT, GovernoContract} from "../typechain-types"
 
 describe("GovernorContract", function () {
   let owner: any;
   let addr1: any;
   let addr2: any;
-  let governorContract: any;
-  let nft: any;
+  let governorContract: GovernoContract;
+  let nft: NFT;
+  let nft2: NFT;
 
   beforeEach(async function() {
     [owner, addr1, addr2] = await ethers.getSigners();
-    const NFTContract = await ethers.getContractFactory("NFT", owner);
-    nft = await NFTContract.deploy();
+    const _NFTContract = await ethers.getContractFactory("NFT", owner);
+    nft = await _NFTContract.deploy();
     await nft.deployed();
+    const _NFTContract2 = await ethers.getContractFactory("NFT", addr1);
+    nft2 = await _NFTContract2.deploy();
+    await nft2.deployed();
     const MyContract = await ethers.getContractFactory("GovernoContract", owner);
     governorContract = await MyContract.deploy('MaxDAO', nft.address, 6545, 3);
     await governorContract.deployed();
@@ -41,13 +45,24 @@ describe("GovernorContract", function () {
       expect(numberOfNFT).to.eq(1)
     })
 
-    it("Add membership and change lenght", async function() {
-      await governorContract.addToken(nft.address)
+    it("[ERROR] Add same address", async function() {
+      await expectRevert(
+        governorContract.addToken(nft.address),
+        "This address is already exsist"
+      )
+    })
+
+    it("Add zero address", async function() {
+      await expectRevert(
+        governorContract.addToken(constants.ZERO_ADDRESS),
+        "Address should non-zero"
+      )
+    })
+
+    it('Should add NFT token', async function() {
+      await governorContract.addToken(nft2.address)
       const numberOfNFT = await governorContract.getTokensLength()
       expect(numberOfNFT).to.eq(2)
     })
   })
-
-  
-
 });
