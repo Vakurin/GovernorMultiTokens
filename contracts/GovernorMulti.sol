@@ -221,6 +221,7 @@ abstract contract GovernorMulti is
 
     /**
      * @dev Get the voting weight of `account` at a specific `blockNumber`, for a vote as described by `params`.
+     * TODO: FIX with token address ,
      */
     function _getVotes(
         address account,
@@ -230,7 +231,7 @@ abstract contract GovernorMulti is
 
     /**
      * @dev Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.
-     *
+     * TODO: FIX with token address
      * Note: Support is generic and can represent various things depending on the voting system used.
      */
     function _countVote(
@@ -253,6 +254,7 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-propose}.
+     * TODO: FIX with token address
      */
     function propose(
         address[] memory targets,
@@ -412,6 +414,7 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-getVotes}.
+     * TODO: FIX with token address
      */
     function getVotes(address account, uint256 blockNumber)
         public
@@ -425,6 +428,8 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-getVotesWithParams}.
+     * TODO:1 FIX with token address
+     * DELETE
      */
     function getVotesWithParams(
         address account,
@@ -436,6 +441,7 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-castVote}.
+     * * TODO:1 FIX with token address
      */
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
@@ -444,6 +450,8 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-castVoteWithReason}.
+     * * TODO:1 FIX with token address
+     * DELETE
      */
     function castVoteWithReason(
         uint256 proposalId,
@@ -456,6 +464,8 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-castVoteWithReasonAndParams}.
+     * TODO 1
+     * DELETE
      */
     function castVoteWithReasonAndParams(
         uint256 proposalId,
@@ -469,6 +479,8 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-castVoteBySig}.
+     * TODO 1
+     * DELETE
      */
     function castVoteBySig(
         uint256 proposalId,
@@ -488,6 +500,8 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-castVoteWithReasonAndParamsBySig}.
+     * TODO 1
+     * DELETE
      */
     function castVoteWithReasonAndParamsBySig(
         uint256 proposalId,
@@ -521,7 +535,7 @@ abstract contract GovernorMulti is
     /**
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
      * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function. Uses the _defaultParams().
-     *
+     * TODO: Add address
      * Emits a {IGovernor-VoteCast} event.
      */
     function _castVote(
@@ -536,7 +550,7 @@ abstract contract GovernorMulti is
     /**
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
      * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function.
-     *
+     * TODO: Add address
      * Emits a {IGovernor-VoteCast} event.
      */
     function _castVote(

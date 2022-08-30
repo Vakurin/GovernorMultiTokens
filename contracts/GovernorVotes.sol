@@ -40,7 +40,6 @@ abstract contract GovernorVotes is Governor {
      * Add more ERC721/20 tokens into array of tokens
      */
     function addToken(IVotes tokenAddress) public virtual checkTokenAddress(tokenAddress) {
-        //TODO: Check zero
         require(address(tokenAddress) != address(0), "Address should non-zero");
         token.push(tokenAddress);
     }
