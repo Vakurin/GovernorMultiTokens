@@ -8,14 +8,21 @@ import "hardhat/console.sol";
 abstract contract GovernorVotes is Governor {
     IVotes[] public token;
 
-    struct votesStruct {
-        address addr;
-    }
-
     mapping(IVotes => bool) public addressIsAlreadyExist;
 
     constructor(IVotes tokenAddress) {
         token.push(tokenAddress);
+        addressIsAlreadyExist[tokenAddress] = true;
+    }
+
+    modifier checkTokenAddress(IVotes tokenAddress) {
+        require(!addressIsAlreadyExist[tokenAddress], "This address is already exsist");
+        _;
+    }
+
+    modifier tokenExist(IVotes tokenAddress) {
+        require(addressIsAlreadyExist[tokenAddress], "Address should added into DAO");
+        _;
     }
 
     /**
@@ -32,9 +39,9 @@ abstract contract GovernorVotes is Governor {
     /**
      * Add more ERC721/20 tokens into array of tokens
      */
-    function addToken(IVotes tokenAddress) public virtual {
-        //TODO: FIX
-        require(!addressIsAlreadyExist[tokenAddress], "This address is already exsist");
+    function addToken(IVotes tokenAddress) public virtual checkTokenAddress(tokenAddress) {
+        //TODO: Check zero
+        require(address(tokenAddress) != address(0), "Address should non-zero");
         token.push(tokenAddress);
     }
 
@@ -46,7 +53,7 @@ abstract contract GovernorVotes is Governor {
         return x;
     }
 
-    function getTokenElement(uint256 index) public view virtual returns (IVotes) {
+    function getTokenElement(uint8 index) public view virtual returns (IVotes) {
         return token[index];
     }
 }
