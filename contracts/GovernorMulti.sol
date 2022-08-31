@@ -78,6 +78,11 @@ abstract contract GovernorMulti is
         }
         _;
     }
+    //FIXME: Need to rewrite
+    modifier onlyGovernorToken() {
+        require(_msgSender() == _executor(), "Governor: onlyGovernance");
+        _;
+    }
 
     /**
      * @dev Sets the value for {name} and {version}
