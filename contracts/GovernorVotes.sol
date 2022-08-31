@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.8;
 
-import "@openzeppelin/contracts/governance/Governor.sol";
+// import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/utils/IVotes.sol";
 import "hardhat/console.sol";
+import "./GovernorMulti.sol";
 
-abstract contract GovernorVotes is Governor {
+abstract contract GovernorVotes is GovernorMulti {
     IVotes[] public token;
 
     mapping(IVotes => bool) public addressIsAlreadyExist;
@@ -31,9 +32,11 @@ abstract contract GovernorVotes is Governor {
     function _getVotes(
         address account,
         uint256 blockNumber,
+        IVotes tokenAddress,
         bytes memory /*params*/
     ) internal view virtual override returns (uint256) {
-        return token[0].getPastVotes(account, blockNumber);
+        //TODO: need to check clearly
+        return tokenAddress.getPastVotes(account, blockNumber);
     }
 
     /**
