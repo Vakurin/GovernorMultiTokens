@@ -13,6 +13,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/Timers.sol";
 
 import "./IGovernorMulti.sol";
+import "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
 /**
  * @dev Core of the governance system, designed to be extended though various modules.
@@ -221,17 +222,18 @@ abstract contract GovernorMulti is
 
     /**
      * @dev Get the voting weight of `account` at a specific `blockNumber`, for a vote as described by `params`.
-     * TODO: FIX with token address ,
+     * FIXME: FIX with token address ,
      */
     function _getVotes(
         address account,
         uint256 blockNumber,
+        IVotes tokenAddress,
         bytes memory params
     ) internal view virtual returns (uint256);
 
     /**
      * @dev Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.
-     * TODO: FIX with token address
+     * FIXME: with token address
      * Note: Support is generic and can represent various things depending on the voting system used.
      */
     function _countVote(
@@ -239,6 +241,7 @@ abstract contract GovernorMulti is
         address account,
         uint8 support,
         uint256 weight,
+        IVotes tokenAddress,
         bytes memory params
     ) internal virtual;
 
@@ -254,16 +257,17 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-propose}.
-     * TODO: FIX with token address
+     * TODO: FIXME:Override fixing
      */
     function propose(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        string memory description
+        string memory description,
+        IVotes tokenAddress
     ) public virtual override returns (uint256) {
         require(
-            getVotes(_msgSender(), block.number - 1) >= proposalThreshold(),
+            getVotes(_msgSender(), block.number - 1, tokenAddress) >= proposalThreshold(),
             "Governor: proposer votes below proposal threshold"
         );
 
@@ -416,121 +420,123 @@ abstract contract GovernorMulti is
      * @dev See {IGovernor-getVotes}.
      * TODO: FIX with token address
      */
-    function getVotes(address account, uint256 blockNumber)
+    function getVotes(address account, uint256 blockNumber, IVotes tokenAddress)
         public
         view
         virtual
         override
         returns (uint256)
     {
-        return _getVotes(account, blockNumber, _defaultParams());
+        return _getVotes(account, blockNumber, tokenAddress, _defaultParams());
     }
 
-    /**
-     * @dev See {IGovernor-getVotesWithParams}.
-     * TODO:1 FIX with token address
-     * DELETE
-     */
-    function getVotesWithParams(
-        address account,
-        uint256 blockNumber,
-        bytes memory params
-    ) public view virtual override returns (uint256) {
-        return _getVotes(account, blockNumber, params);
-    }
+    // /**
+    //  * @dev See {IGovernor-getVotesWithParams}.
+    //  * TODO:1 FIX with token address
+    //  * DELETE
+    //  */
+    // function getVotesWithParams(
+    //     address account,
+    //     uint256 blockNumber,
+    //     IVotes tokenAddress,
+    //     bytes memory params
+    // ) public view virtual override returns (uint256) {
+    //     return _getVotes(account, blockNumber, tokenAddress, params);
+    // }
 
     /**
      * @dev See {IGovernor-castVote}.
      * * TODO:1 FIX with token address
      */
-    function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
+    function castVote(uint256 proposalId, uint8 support, IVotes tokenAddress) public virtual override returns (uint256) {
         address voter = _msgSender();
-        return _castVote(proposalId, voter, support, "");
+        return _castVote(proposalId, voter, support, tokenAddress, "");
     }
 
-    /**
-     * @dev See {IGovernor-castVoteWithReason}.
-     * * TODO:1 FIX with token address
-     * DELETE
-     */
-    function castVoteWithReason(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason
-    ) public virtual override returns (uint256) {
-        address voter = _msgSender();
-        return _castVote(proposalId, voter, support, reason);
-    }
+    // /**
+    //  * @dev See {IGovernor-castVoteWithReason}.
+    //  * * TODO:1 FIX with token address
+    //  * DELETE
+    //  */
+    // function castVoteWithReason(
+    //     uint256 proposalId,
+    //     uint8 support,
+    //     IVotes tokenAddress,
+    //     string calldata reason
+    // ) public virtual override returns (uint256) {
+    //     address voter = _msgSender();
+    //     return _castVote(proposalId, voter, support, tokenAddress, reason);
+    // }
 
-    /**
-     * @dev See {IGovernor-castVoteWithReasonAndParams}.
-     * TODO 1
-     * DELETE
-     */
-    function castVoteWithReasonAndParams(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason,
-        bytes memory params
-    ) public virtual override returns (uint256) {
-        address voter = _msgSender();
-        return _castVote(proposalId, voter, support, reason, params);
-    }
+    // /**
+    //  * @dev See {IGovernor-castVoteWithReasonAndParams}.
+    //  * TODO 1
+    //  * DELETE
+    //  */
+    // function castVoteWithReasonAndParams(
+    //     uint256 proposalId,
+    //     uint8 support,
+    //     string calldata reason,
+    //     bytes memory params
+    // ) public virtual override returns (uint256) {
+    //     address voter = _msgSender();
+    //     return _castVote(proposalId, voter, support, reason, params);
+    // }
 
-    /**
-     * @dev See {IGovernor-castVoteBySig}.
-     * TODO 1
-     * DELETE
-     */
-    function castVoteBySig(
-        uint256 proposalId,
-        uint8 support,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual override returns (uint256) {
-        address voter = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support))),
-            v,
-            r,
-            s
-        );
-        return _castVote(proposalId, voter, support, "");
-    }
+    // /**
+    //  * @dev See {IGovernor-castVoteBySig}.
+    //  * TODO 1
+    //  * DELETE
+    //  */
+    // function castVoteBySig(
+    //     uint256 proposalId,
+    //     uint8 support,
+    //     uint8 v,
+    //     bytes32 r,
+    //     bytes32 s
+    // ) public virtual override returns (uint256) {
+    //     address voter = ECDSA.recover(
+    //         _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support))),
+    //         v,
+    //         r,
+    //         s
+    //     );
+    //     return _castVote(proposalId, voter, support, "");
+    // }
 
-    /**
-     * @dev See {IGovernor-castVoteWithReasonAndParamsBySig}.
-     * TODO 1
-     * DELETE
-     */
-    function castVoteWithReasonAndParamsBySig(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason,
-        bytes memory params,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual override returns (uint256) {
-        address voter = ECDSA.recover(
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        EXTENDED_BALLOT_TYPEHASH,
-                        proposalId,
-                        support,
-                        keccak256(bytes(reason)),
-                        keccak256(params)
-                    )
-                )
-            ),
-            v,
-            r,
-            s
-        );
+    // /**
+    //  * @dev See {IGovernor-castVoteWithReasonAndParamsBySig}.
+    //  * TODO 1
+    //  * DELETE
+    //  */
+    // function castVoteWithReasonAndParamsBySig(
+    //     uint256 proposalId,
+    //     uint8 support,
+    //     string calldata reason,
+    //     bytes memory params,
+    //     uint8 v,
+    //     bytes32 r,
+    //     bytes32 s
+    // ) public virtual override returns (uint256) {
+    //     address voter = ECDSA.recover(
+    //         _hashTypedDataV4(
+    //             keccak256(
+    //                 abi.encode(
+    //                     EXTENDED_BALLOT_TYPEHASH,
+    //                     proposalId,
+    //                     support,
+    //                     keccak256(bytes(reason)),
+    //                     keccak256(params)
+    //                 )
+    //             )
+    //         ),
+    //         v,
+    //         r,
+    //         s
+    //     );
 
-        return _castVote(proposalId, voter, support, reason, params);
-    }
+    //     return _castVote(proposalId, voter, support, reason, params);
+    // }
 
     /**
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
@@ -542,9 +548,10 @@ abstract contract GovernorMulti is
         uint256 proposalId,
         address account,
         uint8 support,
+        IVotes tokenAddress,
         string memory reason
     ) internal virtual returns (uint256) {
-        return _castVote(proposalId, account, support, reason, _defaultParams());
+        return _castVote(proposalId, account, support, reason, tokenAddress, _defaultParams());
     }
 
     /**
@@ -558,13 +565,14 @@ abstract contract GovernorMulti is
         address account,
         uint8 support,
         string memory reason,
+        IVotes tokenAddress,
         bytes memory params
     ) internal virtual returns (uint256) {
         ProposalCore storage proposal = _proposals[proposalId];
         require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
 
-        uint256 weight = _getVotes(account, proposal.voteStart.getDeadline(), params);
-        _countVote(proposalId, account, support, weight, params);
+        uint256 weight = _getVotes(account, proposal.voteStart.getDeadline(),  tokenAddress, params);
+        _countVote(proposalId, account, support, weight, tokenAddress, params);
 
         if (params.length == 0) {
             emit VoteCast(account, proposalId, support, weight, reason);

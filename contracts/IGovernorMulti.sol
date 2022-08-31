@@ -4,6 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
 /**
  * @dev Interface of the {Governor} core.
@@ -176,7 +177,7 @@ abstract contract IGovernorMulti is IERC165 {
      * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
      * multiple), {ERC20Votes} tokens.
      */
-    function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
+    function getVotes(address account, uint256 blockNumber, IVotes tokenAddress) public view virtual returns (uint256);
 
     /**
      * @notice module:reputation
@@ -204,7 +205,8 @@ abstract contract IGovernorMulti is IERC165 {
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        string memory description
+        string memory description,
+        IVotes tokenAddress
     ) public virtual returns (uint256 proposalId);
 
     /**
@@ -227,7 +229,7 @@ abstract contract IGovernorMulti is IERC165 {
      *
      * Emits a {VoteCast} event.
      */
-    function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256 balance);
+    function castVote(uint256 proposalId, uint8 support, IVotes tokenAddress) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote with a reason
