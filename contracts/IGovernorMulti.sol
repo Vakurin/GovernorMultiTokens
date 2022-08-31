@@ -167,8 +167,9 @@ abstract contract IGovernorMulti is IERC165 {
      *
      * Note: The `blockNumber` parameter corresponds to the snapshot used for counting vote. This allows to scale the
      * quorum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
+     * FIXME: Add tokenAddress
      */
-    function quorum(uint256 blockNumber) public view virtual returns (uint256);
+    function quorum(uint256 blockNumber, IVotes tokenAddress) public view virtual returns (uint256);
 
     /**
      * @notice module:reputation
@@ -183,11 +184,11 @@ abstract contract IGovernorMulti is IERC165 {
      * @notice module:reputation
      * @dev Voting power of an `account` at a specific `blockNumber` given additional encoded parameters.
      */
-    function getVotesWithParams(
-        address account,
-        uint256 blockNumber,
-        bytes memory params
-    ) public view virtual returns (uint256);
+    // function getVotesWithParams(
+    //     address account,
+    //     uint256 blockNumber,
+    //     bytes memory params
+    // ) public view virtual returns (uint256);
 
     /**
      * @notice module:voting
@@ -236,49 +237,49 @@ abstract contract IGovernorMulti is IERC165 {
      *
      * Emits a {VoteCast} event.
      */
-    function castVoteWithReason(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason
-    ) public virtual returns (uint256 balance);
+    // function castVoteWithReason(
+    //     uint256 proposalId,
+    //     uint8 support,
+    //     string calldata reason
+    // ) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote with a reason and additional encoded parameters
      *
      * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
      */
-    function castVoteWithReasonAndParams(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason,
-        bytes memory params
-    ) public virtual returns (uint256 balance);
+    // function castVoteWithReasonAndParams(
+    //     uint256 proposalId,
+    //     uint8 support,
+    //     string calldata reason,
+    //     bytes memory params
+    // ) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote using the user's cryptographic signature.
      *
      * Emits a {VoteCast} event.
      */
-    function castVoteBySig(
-        uint256 proposalId,
-        uint8 support,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual returns (uint256 balance);
+    // function castVoteBySig(
+    //     uint256 proposalId,
+    //     uint8 support,
+    //     uint8 v,
+    //     bytes32 r,
+    //     bytes32 s
+    // ) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote with a reason and additional encoded parameters using the user's cryptographic signature.
      *
      * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
      */
-    function castVoteWithReasonAndParamsBySig(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason,
-        bytes memory params,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual returns (uint256 balance);
+    // function castVoteWithReasonAndParamsBySig(
+    //     uint256 proposalId,
+    //     uint8 support,
+    //     string calldata reason,
+    //     bytes memory params,
+    //     uint8 v,
+    //     bytes32 r,
+    //     bytes32 s
+    // ) public virtual returns (uint256 balance);
 }
