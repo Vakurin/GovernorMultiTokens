@@ -71,10 +71,12 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
 
     /**
      * @dev Returns the quorum for a block number, in terms of number of votes: `supply * numerator / denominator`.
+     *
+     * TODO: add token address maybe bug
      */
-    function quorum(uint256 blockNumber) public view virtual override returns (uint256) {
+    function quorum(uint256 blockNumber, IVotes tokenAddress) public view virtual override returns (uint256) {
         return
-            (token[0].getPastTotalSupply(blockNumber) * quorumNumerator(blockNumber)) /
+            (tokenAddress.getPastTotalSupply(blockNumber) * quorumNumerator(blockNumber)) /
             quorumDenominator();
     }
 
