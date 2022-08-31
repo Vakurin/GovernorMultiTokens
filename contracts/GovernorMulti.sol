@@ -112,10 +112,11 @@ abstract contract GovernorMulti is
         // include the castVoteWithReasonAndParams() function as standard
         return
             interfaceId ==
-            (type(IGovernorMulti).interfaceId ^
-                this.castVoteWithReasonAndParams.selector ^
-                this.castVoteWithReasonAndParamsBySig.selector ^
-                this.getVotesWithParams.selector) ||
+            (type(IGovernorMulti).interfaceId //^
+                // this.castVoteWithReasonAndParams.selector ^
+                // this.castVoteWithReasonAndParamsBySig.selector ^
+                // this.getVotesWithParams.selector
+            ) ||
             interfaceId == type(IGovernorMulti).interfaceId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
