@@ -237,11 +237,12 @@ abstract contract IGovernorMulti is IERC165 {
      *
      * Emits a {VoteCast} event.
      */
-    // function castVoteWithReason(
-    //     uint256 proposalId,
-    //     uint8 support,
-    //     string calldata reason
-    // ) public virtual returns (uint256 balance);
+    function castVoteWithReason(
+        uint256 proposalId,
+        uint8 support,
+        IVotes tokenAddress,
+        string calldata reason
+    ) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote with a reason and additional encoded parameters

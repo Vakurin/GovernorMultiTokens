@@ -462,17 +462,16 @@ abstract contract GovernorMulti is
     // /**
     //  * @dev See {IGovernor-castVoteWithReason}.
     //  * * TODO:1 FIX with token address
-    //  * DELETE
     //  */
-    // function castVoteWithReason(
-    //     uint256 proposalId,
-    //     uint8 support,
-    //     IVotes tokenAddress,
-    //     string calldata reason
-    // ) public virtual override returns (uint256) {
-    //     address voter = _msgSender();
-    //     return _castVote(proposalId, voter, support, tokenAddress, reason);
-    // }
+    function castVoteWithReason(
+        uint256 proposalId,
+        uint8 support,
+        IVotes tokenAddress,
+        string calldata reason
+    ) public virtual override returns (uint256) {
+        address voter = _msgSender();
+        return _castVote(proposalId, voter, support, tokenAddress, reason);
+    }
 
     // /**
     //  * @dev See {IGovernor-castVoteWithReasonAndParams}.
