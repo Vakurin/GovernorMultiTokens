@@ -28,7 +28,7 @@ describe("2-1-Propose to Governor", async () => {
     const createProposal = async (signer: SignerWithAddress): Promise<number> => {
         const proposeTx = await governor
             .connect(signer)
-            .propose([governor.address], [0], [encodedFunctionCall], PROPOSAL_DESCRIPTION);
+            .propose([governor.address], [0], [encodedFunctionCall], PROPOSAL_DESCRIPTION, governanceNFT.address);
         const proposeReceipt = await proposeTx.wait(1);
 
         return proposeReceipt.events![0].args!.proposalId;
@@ -46,7 +46,7 @@ describe("2-1-Propose to Governor", async () => {
         await expect(
             governor
                 .connect(notOwner)
-                .propose([governor.address], [0], [encodedFunctionCall], PROPOSAL_DESCRIPTION)
+                .propose([governor.address], [0], [encodedFunctionCall], PROPOSAL_DESCRIPTION, governanceNFT.address)
         ).revertedWith("Governor: proposer votes below proposal threshold");
     });
 
