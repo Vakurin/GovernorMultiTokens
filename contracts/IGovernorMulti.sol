@@ -156,7 +156,7 @@ abstract contract IGovernorMulti is IERC165 {
      * @notice module:user-config
      * @dev Delay, in number of blocks, between the vote start and vote ends.
      *
-     * NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
+     * CHECK: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
      */
     function votingPeriod() public view virtual returns (uint256);
@@ -167,7 +167,7 @@ abstract contract IGovernorMulti is IERC165 {
      *
      * Note: The `blockNumber` parameter corresponds to the snapshot used for counting vote. This allows to scale the
      * quorum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
-     * FIXME: Add tokenAddress
+     * COMPLITE: Add tokenAddress
      */
     function quorum(uint256 blockNumber, IVotes tokenAddress) public view virtual returns (uint256);
 

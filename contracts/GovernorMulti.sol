@@ -78,7 +78,7 @@ abstract contract GovernorMulti is
         }
         _;
     }
-    //FIXME: Need to rewrite
+    // FIXME: Need to rewrite
     modifier onlyGovernorToken() {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
         _;
@@ -228,7 +228,9 @@ abstract contract GovernorMulti is
 
     /**
      * @dev Get the voting weight of `account` at a specific `blockNumber`, for a vote as described by `params`.
-     * FIXME: FIX with token address ,
+     * COMPLITE: FIX with token address ,
+     * HACK:
+     * NOT
      */
     function _getVotes(
         address account,
@@ -239,7 +241,7 @@ abstract contract GovernorMulti is
 
     /**
      * @dev Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.
-     * FIXME: with token address
+     * COMPLITE: with token address
      * Note: Support is generic and can represent various things depending on the voting system used.
      */
     function _countVote(
@@ -263,7 +265,7 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-propose}.
-     * TODO: FIXME:Override fixing
+     * COMPLITE: added token
      */
     function propose(
         address[] memory targets,
@@ -424,7 +426,7 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-getVotes}.
-     * TODO: FIX with token address
+     * COMPLITE: with token address
      */
     function getVotes(address account, uint256 blockNumber, IVotes tokenAddress)
         public
@@ -452,7 +454,7 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-castVote}.
-     * * TODO:1 FIX with token address
+     * * COMPLITE:1 FIX with token address
      */
     function castVote(uint256 proposalId, uint8 support, IVotes tokenAddress) public virtual override returns (uint256) {
         address voter = _msgSender();
@@ -461,7 +463,7 @@ abstract contract GovernorMulti is
 
     // /**
     //  * @dev See {IGovernor-castVoteWithReason}.
-    //  * * TODO:1 FIX with token address
+    //  * * COMPLITE:1 FIX with token address
     //  */
     function castVoteWithReason(
         uint256 proposalId,
@@ -546,7 +548,7 @@ abstract contract GovernorMulti is
     /**
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
      * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function. Uses the _defaultParams().
-     * TODO: Add address
+     * COMPLITE: Add address
      * Emits a {IGovernor-VoteCast} event.
      */
     function _castVote(
@@ -562,7 +564,8 @@ abstract contract GovernorMulti is
     /**
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
      * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function.
-     * TODO: Add address
+     * COMPLITE: Add address
+     * BUG: maybe bug with state function, because we don't have _quorumReach with token address 
      * Emits a {IGovernor-VoteCast} event.
      */
     function _castVote(

@@ -35,7 +35,7 @@ abstract contract GovernorVotes is GovernorMulti {
         IVotes tokenAddress,
         bytes memory /*params*/
     ) internal view virtual override returns (uint256) {
-        //TODO: need to check clearly
+        //CHECK: need to check clearly
         return tokenAddress.getPastVotes(account, blockNumber);
     }
 
