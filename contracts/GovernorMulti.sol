@@ -45,6 +45,7 @@ abstract contract GovernorMulti is
     struct ProposalCore {
         Timers.BlockNumber voteStart;
         Timers.BlockNumber voteEnd;
+        IVotes tokenAddress;
         bool executed;
         bool canceled;
     }
@@ -78,8 +79,8 @@ abstract contract GovernorMulti is
         }
         _;
     }
-    // FIXME: Need to rewrite
-    modifier onlyGovernorToken() {
+    // FIXME:BUG: Need to rewrite
+    modifier onlyGovernorToken(IVotes tokenAddress) {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
         _;
     }
@@ -163,7 +164,7 @@ abstract contract GovernorMulti is
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalCore storage proposal = _proposals[proposalId];
-
+        
         if (proposal.executed) {
             return ProposalState.Executed;
         }
@@ -249,7 +250,6 @@ abstract contract GovernorMulti is
         address account,
         uint8 support,
         uint256 weight,
-        IVotes tokenAddress,
         bytes memory params
     ) internal virtual;
 
@@ -298,6 +298,7 @@ abstract contract GovernorMulti is
 
         proposal.voteStart.setDeadline(snapshot);
         proposal.voteEnd.setDeadline(deadline);
+        proposal.tokenAddress = tokenAddress;
 
         emit ProposalCreated(
             proposalId,
@@ -423,6 +424,10 @@ abstract contract GovernorMulti is
 
         return proposalId;
     }
+    // COMPLITE:
+    function getProposalTokenAddress(uint256 proposalId) public view returns(IVotes) {
+        return _proposals[proposalId].tokenAddress;
+    }
 
     /**
      * @dev See {IGovernor-getVotes}.
@@ -454,7 +459,7 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-castVote}.
-     * * COMPLITE:1 FIX with token address
+     * * COMPLITE: FIXME: with token address
      */
     function castVote(uint256 proposalId, uint8 support, IVotes tokenAddress) public virtual override returns (uint256) {
         address voter = _msgSender();
@@ -463,7 +468,8 @@ abstract contract GovernorMulti is
 
     // /**
     //  * @dev See {IGovernor-castVoteWithReason}.
-    //  * * COMPLITE:1 FIX with token address
+    //  * * COMPLITE: FIXME: with token address
+    //  * 
     //  */
     function castVoteWithReason(
         uint256 proposalId,
@@ -477,8 +483,8 @@ abstract contract GovernorMulti is
 
     // /**
     //  * @dev See {IGovernor-castVoteWithReasonAndParams}.
-    //  * TODO 1
-    //  * DELETE
+    //  * TODO:DELETE
+    // 
     //  */
     // function castVoteWithReasonAndParams(
     //     uint256 proposalId,
@@ -492,8 +498,7 @@ abstract contract GovernorMulti is
 
     // /**
     //  * @dev See {IGovernor-castVoteBySig}.
-    //  * TODO 1
-    //  * DELETE
+    //  * TODO:DELETE
     //  */
     // function castVoteBySig(
     //     uint256 proposalId,
@@ -513,8 +518,7 @@ abstract contract GovernorMulti is
 
     // /**
     //  * @dev See {IGovernor-castVoteWithReasonAndParamsBySig}.
-    //  * TODO 1
-    //  * DELETE
+    //  * TODO:DELETE
     //  */
     // function castVoteWithReasonAndParamsBySig(
     //     uint256 proposalId,
@@ -565,7 +569,6 @@ abstract contract GovernorMulti is
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
      * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function.
      * COMPLITE: Add address
-     * BUG: maybe bug with state function, because we don't have _quorumReach with token address 
      * Emits a {IGovernor-VoteCast} event.
      */
     function _castVote(
@@ -577,10 +580,13 @@ abstract contract GovernorMulti is
         bytes memory params
     ) internal virtual returns (uint256) {
         ProposalCore storage proposal = _proposals[proposalId];
+        //COMPLITE: 
+        require(tokenAddress == proposal.tokenAddress, 'Proposal token should be same');
         require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
+        
 
-        uint256 weight = _getVotes(account, proposal.voteStart.getDeadline(),  tokenAddress, params);
-        _countVote(proposalId, account, support, weight, tokenAddress, params);
+        uint256 weight = _getVotes(account, proposal.voteStart.getDeadline(), tokenAddress, params);
+        _countVote(proposalId, account, support, weight, params);
 
         if (params.length == 0) {
             emit VoteCast(account, proposalId, support, weight, reason);

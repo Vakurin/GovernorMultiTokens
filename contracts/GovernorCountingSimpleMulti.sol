@@ -26,7 +26,6 @@ abstract contract GovernorCountingSimpleMulti is GovernorMulti {
         uint256 forVotes;
         uint256 abstainVotes;
         mapping(address => bool) hasVoted;
-        IVotes tokenAddress;
     }
 
     mapping(uint256 => ProposalVote) private _proposalVotes;
@@ -68,8 +67,8 @@ abstract contract GovernorCountingSimpleMulti is GovernorMulti {
      */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
-        //CHECK: Check this function
-        return quorum(proposalSnapshot(proposalId), proposalvote.tokenAddress) <= proposalvote.forVotes + proposalvote.abstainVotes;
+        //COMPLITE: Check this function
+        return quorum(proposalSnapshot(proposalId), getProposalTokenAddress(proposalId)) <= proposalvote.forVotes + proposalvote.abstainVotes;
     }
 
     /**
@@ -83,19 +82,15 @@ abstract contract GovernorCountingSimpleMulti is GovernorMulti {
 
     /**
      * @dev See {Governor-_countVote}. In this module, the support follows the `VoteType` enum (from Governor Bravo).
-     * COMPLITE:
      */
     function _countVote(
         uint256 proposalId,
         address account,
         uint8 support,
         uint256 weight,
-        IVotes tokenAddress,
         bytes memory // params
     ) internal virtual override {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
-        //BUG:Maybe here a bug, because in _quorumReach we need a token address.
-        proposalvote.tokenAddress = tokenAddress;
         require(!proposalvote.hasVoted[account], "GovernorVotingSimple: vote already cast");
         proposalvote.hasVoted[account] = true;
 

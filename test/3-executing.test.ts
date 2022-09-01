@@ -37,7 +37,7 @@ describe("3-Executing proposals in Governor", async () => {
     const createProposal = async (signer: SignerWithAddress): Promise<number> => {
         const proposeTx = await governor
             .connect(signer)
-            .propose([governor.address], [0], [encodedFunctionCall], PROPOSAL_DESCRIPTION);
+            .propose([governor.address], [0], [encodedFunctionCall], PROPOSAL_DESCRIPTION, governanceNFT.address);
         const proposeReceipt = await proposeTx.wait(1);
         const proposalId = proposeReceipt.events![0].args!.proposalId;
         await moveBlocks(VOTING_DELAY + 1);
@@ -55,7 +55,7 @@ describe("3-Executing proposals in Governor", async () => {
             `Current state of proposal(id:${proposalId}) is ${await governor.state(proposalId)}`
         ) : ''
 
-        await governor.castVoteWithReason(proposalId, voteWayFor, reason);
+        await governor.castVoteWithReason(proposalId, voteWayFor, governanceNFT.address, reason);
         
         await moveBlocks(VOTING_PERIOD + 1);
         DEBUG ? 
@@ -100,7 +100,7 @@ describe("3-Executing proposals in Governor", async () => {
             `Current state of proposal(id:${proposalId}) is ${await governor.state(proposalId)}`
         ) : ''
 
-        await governor.castVoteWithReason(proposalId, voteWayAgainst, reason);
+        await governor.castVoteWithReason(proposalId, voteWayAgainst, governanceNFT.address, reason);
         DEBUG ? console.log("Voted against") : ''
         await moveBlocks(VOTING_PERIOD + 1);
         DEBUG ? console.log(
@@ -122,12 +122,13 @@ describe("3-Executing proposals in Governor", async () => {
     it("should fail execute proposal (not voting)", async () => {
         const proposalId = await createProposal(owner);
         await moveBlocks(VOTING_DELAY + 1);
-        DEBUG ? console.log(
+        const DEBUG_TRUE = true;
+        DEBUG_TRUE ? console.log(
             `Current state of proposal(id:${proposalId}) is ${await governor.state(proposalId)}`
         ) : ''
 
         await moveBlocks(VOTING_PERIOD + 1);
-        DEBUG ? console.log(
+        DEBUG_TRUE ? console.log(
             `Current state of proposal(id:${proposalId}) is ${await governor.state(proposalId)}`
         ) : ''
 

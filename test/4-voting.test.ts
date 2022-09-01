@@ -36,12 +36,11 @@ describe("4-Voting for proposals in Governor", async () => {
         governor = await ethers.getContract("GovernorContract");
         governanceNFT = await ethers.getContract("GovernanceNFT");
         encodedFunctionCall = governor.interface.encodeFunctionData("incrementExecutedProposals");
-
         //Transfer nft to addresses
         // await transferNFT(owner, proposer.address, 1);
         // await delegate(proposer, proposer.address);
         await transferNftToAccounts();
-
+        // TODO:FIXME: Create proposal 
         await createProposal();
     });
 
@@ -72,7 +71,8 @@ describe("4-Voting for proposals in Governor", async () => {
             [governor.address],
             [0],
             [encodedFunctionCall],
-            PROPOSAL_DESCRIPTION
+            PROPOSAL_DESCRIPTION,
+            governanceNFT.address,
         );
         const proposeReceipt = await proposeTx.wait(1);
         proposalId = proposeReceipt.events![0].args!.proposalId;
@@ -89,22 +89,25 @@ describe("4-Voting for proposals in Governor", async () => {
     };
 
     it("should vote for proposal, state after: Succeeded", async function () {
-        DEBUG ?
+        const DEBUG_TEST = true
+
+        DEBUG_TEST ?
         console.log(
             `Votes of voter: ${await governor.getVotes(
                 owner.address,
-                await governor.proposalSnapshot(proposalId)
+                await governor.proposalSnapshot(proposalId),
+                governanceNFT.address
             )}`
         ) : ""
 
-        await governor.castVoteWithReason(proposalId, voteWayFor, reason);
-        DEBUG ? console.log("Voted") : ''
+        await governor.castVoteWithReason(proposalId, voteWayFor, governanceNFT.address, reason);
+        DEBUG_TEST ? console.log("Voted") : ''
 
         await moveBlocks(VOTING_PERIOD + 1);
 
         //4 - Succeeded
         expect(await governor.state(proposalId)).equal(4);
-        DEBUG ? console.log("Succeeded"):''
+        DEBUG_TEST ? console.log("Succeeded"):''
     });
 
     it("should not vote for proposal, state after: Defeated", async function () {
@@ -116,16 +119,19 @@ describe("4-Voting for proposals in Governor", async () => {
     });
 
     it("should vote but 0 balance, state after: Defeated", async function () {
+        const DEBUG = true;
         DEBUG ? console.log(
             `Votes of voter: ${await governor.getVotes(
                 withoutVotesVoter.address,
-                await governor.proposalSnapshot(proposalId)
+                await governor.proposalSnapshot(proposalId),
+                governanceNFT.address,
             )}`
         ) : "";
 
         await governor
             .connect(quorumLessVotesVoter)
-            .castVoteWithReason(proposalId, voteWayFor, reason);
+            .castVoteWithReason(proposalId, voteWayFor, governanceNFT.address, reason);
+
         DEBUG ? console.log("Voted") : ''
 
         await moveBlocks(VOTING_PERIOD + 1);
@@ -139,13 +145,14 @@ describe("4-Voting for proposals in Governor", async () => {
         DEBUG ? console.log(
             `Votes of voter: ${await governor.getVotes(
                 quorumLessVotesVoter.address,
-                await governor.proposalSnapshot(proposalId)
+                await governor.proposalSnapshot(proposalId),
+                governanceNFT.address,
             )}`
         ) : "";
 
         await governor
             .connect(quorumLessVotesVoter)
-            .castVoteWithReason(proposalId, voteWayFor, reason);
+            .castVoteWithReason(proposalId, voteWayFor, governanceNFT.address, reason);
         DEBUG ? console.log("Voted") : ''
 
         await moveBlocks(VOTING_PERIOD + 1);
@@ -159,13 +166,14 @@ describe("4-Voting for proposals in Governor", async () => {
         DEBUG ? console.log(
             `Votes of voter (exactly quorum needed votes): ${await governor.getVotes(
                 quorumExactlyVotesVoter.address,
-                await governor.proposalSnapshot(proposalId)
+                await governor.proposalSnapshot(proposalId),
+                governanceNFT.address,
             )}`
         ) : ""
 
         await governor
             .connect(quorumExactlyVotesVoter)
-            .castVoteWithReason(proposalId, voteWayFor, reason);
+            .castVoteWithReason(proposalId, voteWayFor, governanceNFT.address, reason);
         DEBUG ? console.log("Voted") : ''
 
         await moveBlocks(VOTING_PERIOD + 1);
@@ -179,18 +187,20 @@ describe("4-Voting for proposals in Governor", async () => {
         DEBUG ? console.log(
             `Votes of voter1: ${await governor.getVotes(
                 voter1.address,
-                await governor.proposalSnapshot(proposalId)
+                await governor.proposalSnapshot(proposalId),
+                governanceNFT.address,
             )}`
         ) : ''
         DEBUG ? console.log(
             `Votes of voter2: ${await governor.getVotes(
                 voter2.address,
-                await governor.proposalSnapshot(proposalId)
+                await governor.proposalSnapshot(proposalId),
+                governanceNFT.address,
             )}`
         ) : ''
 
-        await governor.connect(voter1).castVote(proposalId, voteWayFor);
-        await governor.connect(voter2).castVote(proposalId, voteWayAgainst);
+        await governor.connect(voter1).castVote(proposalId, voteWayFor, governanceNFT.address);
+        await governor.connect(voter2).castVote(proposalId, voteWayAgainst, governanceNFT.address);
 
         await moveBlocks(VOTING_PERIOD + 1);
 
@@ -203,18 +213,20 @@ describe("4-Voting for proposals in Governor", async () => {
         DEBUG ? console.log(
             `Votes of voter1: ${await governor.getVotes(
                 voter1.address,
-                await governor.proposalSnapshot(proposalId)
+                await governor.proposalSnapshot(proposalId),
+                governanceNFT.address,
             )}`
         ) : ''
         DEBUG ? console.log(
             `Votes of voter2: ${await governor.getVotes(
                 voter2.address,
-                await governor.proposalSnapshot(proposalId)
+                await governor.proposalSnapshot(proposalId),
+                governanceNFT.address,
             )}`
         ) : ''
 
-        await governor.connect(voter1).castVote(proposalId, voteWayAgainst);
-        await governor.connect(voter2).castVote(proposalId, voteWayFor);
+        await governor.connect(voter1).castVote(proposalId, voteWayAgainst, governanceNFT.address,);
+        await governor.connect(voter2).castVote(proposalId, voteWayFor, governanceNFT.address,);
 
         await moveBlocks(VOTING_PERIOD + 1);
 
@@ -224,16 +236,16 @@ describe("4-Voting for proposals in Governor", async () => {
     });
 
     it("should revert after repeated voting", async function () {
-        await governor.castVoteWithReason(proposalId, voteWayFor, reason);
+        await governor.castVoteWithReason(proposalId, voteWayFor, governanceNFT.address, reason);
         DEBUG ? console.log("Voted") : ''
-        await expect(governor.castVoteWithReason(proposalId, voteWayFor, reason)).revertedWith(
+        await expect(governor.castVoteWithReason(proposalId, voteWayFor, governanceNFT.address, reason)).revertedWith(
             "GovernorVotingSimple: vote already cast'"
         );
     });
 
     it("should revert vote because voting period ended", async function () {
         await moveBlocks(VOTING_PERIOD);
-        await expect(governor.castVoteWithReason(proposalId, voteWayFor, reason)).revertedWith(
+        await expect(governor.castVoteWithReason(proposalId, voteWayFor, governanceNFT.address, reason)).revertedWith(
             "Governor: vote not currently active"
         );
         DEBUG ? console.log("Voted") : ''
