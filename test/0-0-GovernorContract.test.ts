@@ -20,7 +20,7 @@ describe("0-0-GovernorContract", function () {
     [owner, addr1, addr2] = await ethers.getSigners();
     nft = await ethers.getContract("GovernanceNFT");
     governorContract = await ethers.getContract("GovernorContract");
-    await reserve(owner, 1)
+    await reserve(nft, owner, 1)
     await deployments.fixture(["NFT2"]);
     nft2 = await ethers.getContract("GovernanceNFT");
   })

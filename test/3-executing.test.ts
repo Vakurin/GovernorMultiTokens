@@ -27,7 +27,7 @@ describe("3-Executing proposals in Governor", async () => {
         governanceNFT = await ethers.getContract("GovernanceNFT");
         encodedFunctionCall = governor.interface.encodeFunctionData("incrementExecutedProposals");
 
-        await reserve(owner, 2);
+        await reserve(governanceNFT, owner, 2);
         await delegate(owner, owner.address);
 
         await transferNFT(owner, proposer.address, 1);

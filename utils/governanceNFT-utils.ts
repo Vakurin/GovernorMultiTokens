@@ -2,8 +2,8 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { NFT_PRICE } from "../helper-hardhat-config";
 
-export const reserve = async (signer: SignerWithAddress, numberOfTokens: number) => {
-    const governanceNFT = await ethers.getContract("GovernanceNFT");
+export const reserve = async (_governanceNFT: any, signer: SignerWithAddress, numberOfTokens: number) => {
+    const governanceNFT = _governanceNFT;
 
     const reserveTx = await governanceNFT.connect(signer).reserve(numberOfTokens);
     await reserveTx.wait(1);

@@ -44,7 +44,7 @@ describe("4-Voting for proposals in Governor", async () => {
     });
 
     const transferNftToAccounts = async () => {
-        await reserve(owner, 100);
+        await reserve(governanceNFT, owner, 100);
         await delegate(owner, owner.address);
 
         //transfer token to account for Test: Less than quorum needed votes

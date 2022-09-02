@@ -94,7 +94,7 @@ describe("1-Test NFT contract functions", async () => {
     it("should fail mint after maxSupply tokens minted", async function () {
         const supply = ONFT_ARGS["hardhat"].endMintId - ONFT_ARGS["hardhat"].startMintId + 1;
 
-        await reserve(owner, supply);
+        await reserve(governanceNFT, owner, supply);
         await setAllowList(owner, [minter.address], numAllowedToMint);
         await expect(governanceNFT.connect(minter).mint()).revertedWith("Max mint limit reached");
     });

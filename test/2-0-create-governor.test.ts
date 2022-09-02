@@ -23,7 +23,7 @@ describe("2-0-Propose to Governor", async () => {
         [owner, notOwner] = await ethers.getSigners();
         governor = await ethers.getContract("GovernorContract");
         governanceNFT = await ethers.getContract("GovernanceNFT");
-        await reserve(owner, 1);
+        await reserve(governanceNFT, owner, 1);
     });
 
     it("should return governor name", async function () {
