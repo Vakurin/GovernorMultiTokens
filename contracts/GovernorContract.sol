@@ -91,7 +91,7 @@ contract GovernorContract is
         bytes[] memory calldatas,
         string memory description,
         IVotes tokenAddress
-    ) public virtual override returns (uint256) {
+    ) public virtual override tokenExist(tokenAddress) returns (uint256) {
         uint256 proposalId = super.propose(targets, values, calldatas, description, tokenAddress);
         _proposers[proposalId] = _msgSender();
         _totalProposals++;
@@ -109,7 +109,6 @@ contract GovernorContract is
             getProposer(proposalId) == _msgSender() || owner() == _msgSender(),
             "Not proposer or owner"
         );
-
         return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
