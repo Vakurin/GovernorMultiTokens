@@ -230,8 +230,6 @@ abstract contract GovernorMulti is
     /**
      * @dev Get the voting weight of `account` at a specific `blockNumber`, for a vote as described by `params`.
      * COMPLITE: FIX with token address ,
-     * HACK:
-     * NOT
      */
     function _getVotes(
         address account,
@@ -242,7 +240,6 @@ abstract contract GovernorMulti is
 
     /**
      * @dev Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.
-     * COMPLITE: with token address
      * Note: Support is generic and can represent various things depending on the voting system used.
      */
     function _countVote(
@@ -459,26 +456,23 @@ abstract contract GovernorMulti is
 
     /**
      * @dev See {IGovernor-castVote}.
-     * * COMPLITE: FIXME: with token address
      */
-    function castVote(uint256 proposalId, uint8 support, IVotes tokenAddress) public virtual override returns (uint256) {
+    function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
-        return _castVote(proposalId, voter, support, tokenAddress, "");
+        return _castVote(proposalId, voter, support, "");
     }
 
     // /**
     //  * @dev See {IGovernor-castVoteWithReason}.
-    //  * * COMPLITE: FIXME: with token address
     //  * 
     //  */
     function castVoteWithReason(
         uint256 proposalId,
         uint8 support,
-        IVotes tokenAddress,
         string calldata reason
     ) public virtual override returns (uint256) {
         address voter = _msgSender();
-        return _castVote(proposalId, voter, support, tokenAddress, reason);
+        return _castVote(proposalId, voter, support, reason);
     }
 
     // /**
@@ -559,10 +553,9 @@ abstract contract GovernorMulti is
         uint256 proposalId,
         address account,
         uint8 support,
-        IVotes tokenAddress,
         string memory reason
     ) internal virtual returns (uint256) {
-        return _castVote(proposalId, account, support, reason, tokenAddress, _defaultParams());
+        return _castVote(proposalId, account, support, reason, _defaultParams());
     }
 
     /**
@@ -576,16 +569,17 @@ abstract contract GovernorMulti is
         address account,
         uint8 support,
         string memory reason,
-        IVotes tokenAddress,
         bytes memory params
     ) internal virtual returns (uint256) {
         ProposalCore storage proposal = _proposals[proposalId];
         //COMPLITE: 
-        require(tokenAddress == proposal.tokenAddress, 'Proposal token should be same');
+        IVotes token = proposal.tokenAddress;
+        require(token.getVotes(account) > 0, 'Proposal token should be with voting power');
+        // require(tokenAddress == proposal.tokenAddress, 'Proposal token should be same');
         require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
         
 
-        uint256 weight = _getVotes(account, proposal.voteStart.getDeadline(), tokenAddress, params);
+        uint256 weight = _getVotes(account, proposal.voteStart.getDeadline(), token, params);
         _countVote(proposalId, account, support, weight, params);
 
         if (params.length == 0) {
