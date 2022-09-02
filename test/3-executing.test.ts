@@ -55,7 +55,7 @@ describe("3-Executing proposals in Governor", async () => {
             `Current state of proposal(id:${proposalId}) is ${await governor.state(proposalId)}`
         ) : ''
 
-        await governor.castVoteWithReason(proposalId, voteWayFor, governanceNFT.address, reason);
+        await governor.castVoteWithReason(proposalId, voteWayFor, reason);
         
         await moveBlocks(VOTING_PERIOD + 1);
         DEBUG ? 
@@ -100,7 +100,7 @@ describe("3-Executing proposals in Governor", async () => {
             `Current state of proposal(id:${proposalId}) is ${await governor.state(proposalId)}`
         ) : ''
 
-        await governor.castVoteWithReason(proposalId, voteWayAgainst, governanceNFT.address, reason);
+        await governor.castVoteWithReason(proposalId, voteWayAgainst, reason);
         DEBUG ? console.log("Voted against") : ''
         await moveBlocks(VOTING_PERIOD + 1);
         DEBUG ? console.log(
@@ -122,13 +122,13 @@ describe("3-Executing proposals in Governor", async () => {
     it("should fail execute proposal (not voting)", async () => {
         const proposalId = await createProposal(owner);
         await moveBlocks(VOTING_DELAY + 1);
-        const DEBUG_TRUE = true;
-        DEBUG_TRUE ? console.log(
+        
+        DEBUG ? console.log(
             `Current state of proposal(id:${proposalId}) is ${await governor.state(proposalId)}`
         ) : ''
 
         await moveBlocks(VOTING_PERIOD + 1);
-        DEBUG_TRUE ? console.log(
+        DEBUG ? console.log(
             `Current state of proposal(id:${proposalId}) is ${await governor.state(proposalId)}`
         ) : ''
 
@@ -180,7 +180,6 @@ describe("3-Executing proposals in Governor", async () => {
 
     it("should fail cancel proposal", async function () {
         await createProposal(proposer);
-
         await expect(
             governor
                 .connect(failCanceler)
