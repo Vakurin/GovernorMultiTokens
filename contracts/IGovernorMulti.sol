@@ -156,7 +156,7 @@ abstract contract IGovernorMulti is IERC165 {
      * @notice module:user-config
      * @dev Delay, in number of blocks, between the vote start and vote ends.
      *
-     * CHECK: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
+     * The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
      */
     function votingPeriod() public view virtual returns (uint256);
@@ -230,7 +230,7 @@ abstract contract IGovernorMulti is IERC165 {
      *
      * Emits a {VoteCast} event.
      */
-    function castVote(uint256 proposalId, uint8 support, IVotes tokenAddress) public virtual returns (uint256 balance);
+    function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote with a reason
@@ -240,7 +240,6 @@ abstract contract IGovernorMulti is IERC165 {
     function castVoteWithReason(
         uint256 proposalId,
         uint8 support,
-        IVotes tokenAddress,
         string calldata reason
     ) public virtual returns (uint256 balance);
 
