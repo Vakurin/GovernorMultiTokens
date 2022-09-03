@@ -15,6 +15,7 @@ import { reserve } from "../utils/governanceNFT-utils";
 describe("2-0-Propose to Governor", async () => {
     let governor: GovernorContract;
     let governanceNFT: GovernanceNFT;
+    let notOwnerNFT: GovernanceNFT;
 
     let owner: SignerWithAddress, notOwner: SignerWithAddress;
 
@@ -24,6 +25,10 @@ describe("2-0-Propose to Governor", async () => {
         governor = await ethers.getContract("GovernorContract");
         governanceNFT = await ethers.getContract("GovernanceNFT");
         await reserve(governanceNFT, owner, 1);
+
+        await deployments.fixture(["all", "GovernanceNFT", "fakeNFT"])
+        notOwnerNFT = await ethers.getContract("GovernanceNFT");
+        await reserve(notOwnerNFT, owner, 1);
     });
 
     it("should return governor name", async function () {
@@ -41,15 +46,46 @@ describe("2-0-Propose to Governor", async () => {
         expect(await governor.governorInfoURI()).equal(GOVERNOR_INFO_URI);
     });
 
-    // it("should fail set new governor infoURI (NOT OWNER)", async function () {
-    //     await expect(governor.connect(notOwner).setGovernorInfoURI(GOVERNOR_INFO_URI)).revertedWith(
-    //         "Ownable: caller is not the owner"
-    //     );
-    // });
+    it("should fail set new governor infoURI (NOT OWNER)", async function () {
+        await expect(governor.connect(notOwner).setGovernorInfoURI(GOVERNOR_INFO_URI)).revertedWith(
+            "Ownable: caller is not the owner"
+        );
+    });
 
-    // it("should return governance token address", async function () {
-    //     expect(await governor.token()).equal(governanceNFT.address);
-    // });
+    describe("Multi tokens manipulation", async function () {
+        it('check initial lenght of DAO tokens', async function () {
+            expect(await governor.getTokensLength()).equal(1)
+        })
+        
+        it('[ERROR] should fail if set a new from not owner address', async function () {
+            await expect(governor.connect(notOwner).addToken(notOwnerNFT.address)).revertedWith(
+                "Ownable: caller is not the owner"
+            );
+        })
+        
+        it('add new token address into DAO', async function () {
+            await governor.connect(owner).addToken(notOwnerNFT.address)
+            expect(await governor.getTokensLength()).equal(2)
+        })
+        
+        it('[ERROR] add initial NFT address into DAO', async function() {
+            expect(await governor.getTokensLength()).equal(2)
+            await expect(governor.connect(owner).addToken(governanceNFT.address)).revertedWith(
+                "GovernorVotes: This address is already exist"
+            );
+        })
+
+        it('[ERROR] add same address into DAO', async function() {
+            expect(await governor.getTokensLength()).equal(2)
+            await expect(governor.connect(owner).addToken(notOwnerNFT.address)).revertedWith(
+                "GovernorVotes: This address is already exist"
+            );
+        })
+    })
+
+    it("should return initial governance token address", async function () {
+        expect(await governor.token(0)).equal(governanceNFT.address);
+    });
 
     it("should return voting delay", async function () {
         expect(await governor.votingDelay()).equal(VOTING_DELAY);
