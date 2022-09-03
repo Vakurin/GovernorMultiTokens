@@ -4,7 +4,7 @@ pragma solidity ^0.8.8;
 // // import "@openzeppelin/contracts/governance/Governor.sol";
 // // import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
 // import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+// import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./GovernorVotesQuorumFraction.sol";
 import "./GovernorVotes.sol";
@@ -17,8 +17,7 @@ contract GovernorContract is
     GovernorSettingsMulti,
     GovernorCountingSimpleMulti,
     GovernorVotes,
-    GovernorVotesQuorumFraction,
-    Ownable
+    GovernorVotesQuorumFraction
 {
     //proposalId => proposer
     mapping(uint256 => address) private _proposers;

@@ -5,8 +5,9 @@ pragma solidity ^0.8.8;
 import "@openzeppelin/contracts/governance/utils/IVotes.sol";
 import "hardhat/console.sol";
 import "./GovernorMulti.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-abstract contract GovernorVotes is GovernorMulti {
+abstract contract GovernorVotes is GovernorMulti, Ownable {
     IVotes[] public token;
 
     mapping(IVotes => bool) public addressIsAlreadyExist;
@@ -35,14 +36,14 @@ abstract contract GovernorVotes is GovernorMulti {
         IVotes tokenAddress,
         bytes memory /*params*/
     ) internal view virtual override returns (uint256) {
-        //CHECK: need to check clearly
         return tokenAddress.getPastVotes(account, blockNumber);
     }
 
     /**
      * Add more ERC721/20 tokens into array of tokens
+     * Only owner can add token into DAO
      */
-    function addToken(IVotes tokenAddress) public virtual checkTokenAddress(tokenAddress) {
+    function addToken(IVotes tokenAddress) public virtual onlyOwner checkTokenAddress(tokenAddress) {
         require(address(tokenAddress) != address(0), "Address should non-zero");
         token.push(tokenAddress);
     }
