@@ -9,8 +9,8 @@ export const reserve = async (_governanceNFT: any, signer: SignerWithAddress, nu
     await reserveTx.wait(1);
 };
 
-export const delegate = async (signer: SignerWithAddress, delegatedAccount: string) => {
-    const governanceNFT = await ethers.getContract("GovernanceNFT");
+export const delegate = async (_governanceNFT: any, signer: SignerWithAddress, delegatedAccount: string) => {
+    const governanceNFT = _governanceNFT;
 
     const delegateTx = await governanceNFT.connect(signer).delegate(delegatedAccount);
     await delegateTx.wait(1);
