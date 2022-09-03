@@ -28,10 +28,10 @@ describe("3-Executing proposals in Governor", async () => {
         encodedFunctionCall = governor.interface.encodeFunctionData("incrementExecutedProposals");
 
         await reserve(governanceNFT, owner, 2);
-        await delegate(owner, owner.address);
+        await delegate(governanceNFT, owner, owner.address);
 
         await transferNFT(owner, proposer.address, 1);
-        await delegate(proposer, proposer.address);
+        await delegate(governanceNFT, proposer, proposer.address);
     });
 
     const createProposal = async (signer: SignerWithAddress): Promise<number> => {
