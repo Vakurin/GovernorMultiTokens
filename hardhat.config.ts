@@ -22,6 +22,9 @@ const config: HardhatUserConfig = {
     deployer: {
         default: 0, // here this will by default take the first account as deployer
     },
+    nowOwner: {
+      default: 2,
+    }
   },
   // gasReporter: {
   //   enabled: false,
