@@ -4,7 +4,6 @@ import {
   ADDRESS_ZERO
 } from "../helper-hardhat-config";
 
-
 describe("0-1-MyContract", function () {
   let owner: any;
   let myContract: any;
