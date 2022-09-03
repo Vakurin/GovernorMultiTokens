@@ -18,12 +18,12 @@ abstract contract GovernorVotes is GovernorMulti, Ownable {
     }
 
     modifier checkTokenAddress(IVotes tokenAddress) {
-        require(!addressIsAlreadyExist[tokenAddress], "This address is already exsist");
+        require(!addressIsAlreadyExist[tokenAddress], "GovernorVotes: This address is already exist");
         _;
     }
 
     modifier tokenExist(IVotes tokenAddress) {
-        require(addressIsAlreadyExist[tokenAddress], "Address should added into DAO");
+        require(addressIsAlreadyExist[tokenAddress], "GovernorVotes: Address should added into DAO");
         _;
     }
 
@@ -46,6 +46,7 @@ abstract contract GovernorVotes is GovernorMulti, Ownable {
     function addToken(IVotes tokenAddress) public virtual onlyOwner checkTokenAddress(tokenAddress) {
         require(address(tokenAddress) != address(0), "Address should non-zero");
         token.push(tokenAddress);
+        addressIsAlreadyExist[tokenAddress] = true;
     }
 
     /**
