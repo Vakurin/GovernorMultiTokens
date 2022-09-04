@@ -15,6 +15,7 @@ import { delegate, reserve, transferNFT } from "../utils/governanceNFT-utils";
 describe("4-Voting for proposals in Governor", async () => {
     let governor: GovernorContract;
     let governanceNFT: GovernanceNFT;
+    let outsideNFT: GovernanceNFT;
     let encodedFunctionCall: string;
 
     let owner: SignerWithAddress;
@@ -23,6 +24,7 @@ describe("4-Voting for proposals in Governor", async () => {
     let withoutVotesVoter: SignerWithAddress;
     let voter1: SignerWithAddress;
     let voter2: SignerWithAddress;
+    let voterWithDifferentToken: SignerWithAddress;
 
     let proposalId: number;
     const voteWayFor = 1; // 0 - against, 1 - for, 2 - abstain
@@ -31,47 +33,61 @@ describe("4-Voting for proposals in Governor", async () => {
 
     beforeEach(async () => {
         await deployments.fixture(["all"]);
-        [owner, quorumExactlyVotesVoter, quorumLessVotesVoter, withoutVotesVoter, voter1, voter2] =
+        [owner, quorumExactlyVotesVoter, quorumLessVotesVoter, withoutVotesVoter, voter1, voter2, voterWithDifferentToken,] =
             await ethers.getSigners();
         governor = await ethers.getContract("GovernorContract");
         governanceNFT = await ethers.getContract("GovernanceNFT");
         encodedFunctionCall = governor.interface.encodeFunctionData("incrementExecutedProposals");
+        
+        // second NFT
+        await deployments.fixture(["all", "GovernanceNFT", "fakeNFT"])
+        outsideNFT = await ethers.getContract("GovernanceNFT");
+        
         //Transfer nft to addresses
         // await transferNFT(owner, proposer.address, 1);
         // await delegate(proposer, proposer.address);
+
         await transferNftToAccounts();
-        await createProposal();
+        await createProposal(governanceNFT);
+                
     });
 
     const transferNftToAccounts = async () => {
         await reserve(governanceNFT, owner, 100);
-        await delegate(owner, owner.address);
+        await delegate(governanceNFT, owner, owner.address);
 
         //transfer token to account for Test: Less than quorum needed votes
-        await transferNFT(owner, quorumLessVotesVoter.address, 1);
-        await delegate(quorumLessVotesVoter, quorumLessVotesVoter.address);
+        await transferNFT(governanceNFT, owner, quorumLessVotesVoter.address, 1);
+        await delegate(governanceNFT, quorumLessVotesVoter, quorumLessVotesVoter.address);
 
         //transfer token to account for Test: Exactly quorum needed votes
         const totalSupply = await governanceNFT.totalSupply();
         const quorumNeededVotes = (+totalSupply * QUORUM_PERCENTAGE) / 100;
-        await transferNFT(owner, quorumExactlyVotesVoter.address, quorumNeededVotes);
-        await delegate(quorumExactlyVotesVoter, quorumExactlyVotesVoter.address);
+        await transferNFT(governanceNFT,owner, quorumExactlyVotesVoter.address, quorumNeededVotes);
+        await delegate(governanceNFT, quorumExactlyVotesVoter, quorumExactlyVotesVoter.address);
 
         //transfer NEARLY EQUAL amount of tokens to accounts for MULTI voting
         //voter1's votes > voter2's votes
-        await transferNFT(owner, voter1.address, quorumNeededVotes + 1);
-        await delegate(voter1, voter1.address);
-        await transferNFT(owner, voter2.address, quorumNeededVotes);
-        await delegate(voter2, voter2.address);
+        await transferNFT(governanceNFT, owner, voter1.address, quorumNeededVotes + 1);
+        await delegate(governanceNFT, voter1, voter1.address);
+        await transferNFT(governanceNFT, owner, voter2.address, quorumNeededVotes);
+        await delegate(governanceNFT, voter2, voter2.address);
+
+
+        // Multi tokens 
+        await reserve(outsideNFT, owner, 1);
+        await transferNFT(outsideNFT, owner, voterWithDifferentToken.address, 1);
+        await delegate(outsideNFT, voterWithDifferentToken, voterWithDifferentToken.address);
+        governor.addToken(outsideNFT.address);
     };
 
-    const createProposal = async () => {
+    const createProposal = async (GovernanceNFT: GovernanceNFT) => {
         const proposeTx = await governor.propose(
             [governor.address],
             [0],
             [encodedFunctionCall],
             PROPOSAL_DESCRIPTION,
-            governanceNFT.address,
+            GovernanceNFT.address,
         );
         const proposeReceipt = await proposeTx.wait(1);
         proposalId = proposeReceipt.events![0].args!.proposalId;
@@ -88,9 +104,8 @@ describe("4-Voting for proposals in Governor", async () => {
     };
 
     it("should vote for proposal, state after: Succeeded", async function () {
-        const DEBUG_TEST = true
-
-        DEBUG_TEST ?
+        
+        DEBUG ?
         console.log(
             `Votes of voter: ${await governor.getVotes(
                 owner.address,
@@ -98,15 +113,15 @@ describe("4-Voting for proposals in Governor", async () => {
                 governanceNFT.address
             )}`
         ) : ""
-
+        
         await governor.castVoteWithReason(proposalId, voteWayFor, reason);
-        DEBUG_TEST ? console.log("Voted") : ''
+        DEBUG ? console.log("Voted") : ''
 
         await moveBlocks(VOTING_PERIOD + 1);
 
         //4 - Succeeded
         expect(await governor.state(proposalId)).equal(4);
-        DEBUG_TEST ? console.log("Succeeded"):''
+        DEBUG ? console.log("Succeeded"):''
     });
 
     it("should not vote for proposal, state after: Defeated", async function () {
@@ -118,7 +133,6 @@ describe("4-Voting for proposals in Governor", async () => {
     });
 
     it("should vote but 0 balance, state after: Defeated", async function () {
-        const DEBUG = true;
         DEBUG ? console.log(
             `Votes of voter: ${await governor.getVotes(
                 withoutVotesVoter.address,
@@ -160,6 +174,22 @@ describe("4-Voting for proposals in Governor", async () => {
         expect(await governor.state(proposalId)).equal(3);
         DEBUG ? console.log("Defeated") : ''
     });
+
+    it("[ERROR] should be create proposal, but can't vote for different proposal", async function(){
+        DEBUG ? console.log(
+            `Votes power of voter: ${await governor.getVotes(
+                withoutVotesVoter.address,
+                await governor.proposalSnapshot(proposalId),
+                outsideNFT.address,
+            )}`
+        ) : "";
+        
+        expect(await governor.getTokenElement(1)).to.equal(outsideNFT.address);
+
+        await expect(governor
+            .connect(voterWithDifferentToken)
+            .castVoteWithReason(proposalId, voteWayFor, reason)).revertedWith("Proposal token should be with voting power");
+    })
 
     it("should vote with exactly quorum percentage votes, state after: Succeeded", async function () {
         DEBUG ? console.log(
