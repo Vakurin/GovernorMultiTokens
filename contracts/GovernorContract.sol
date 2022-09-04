@@ -1,16 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.8;
 
-// // import "@openzeppelin/contracts/governance/Governor.sol";
-// // import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
-// import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
-// import "@openzeppelin/contracts/access/Ownable.sol";
-
-import "./GovernorVotesQuorumFraction.sol";
-import "./GovernorVotes.sol";
-import "./GovernorMulti.sol";
-import "./GovernorSettingsMulti.sol";
-import "./GovernorCountingSimpleMulti.sol";
+import "./GovernorMultiTokens/GovernorVotesQuorumFraction.sol";
+import "./GovernorMultiTokens/GovernorVotes.sol";
+import "./GovernorMultiTokens/GovernorMulti.sol";
+import "./GovernorMultiTokens/GovernorSettingsMulti.sol";
+import "./GovernorMultiTokens/GovernorCountingSimpleMulti.sol";
 
 contract GovernorContract is
     GovernorMulti,
