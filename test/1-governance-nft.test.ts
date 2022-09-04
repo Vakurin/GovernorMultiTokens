@@ -47,13 +47,13 @@ describe("1-Test NFT contract functions", async () => {
     });
 
     it("should fail set allow list (not owner)", async function () {
-        await expect(setAllowList(notOwner, [minter.address], numAllowedToMint)).revertedWith(
+        await expect(setAllowList(governanceNFT, notOwner, [minter.address], numAllowedToMint)).revertedWith(
             "Ownable: caller is not the owner"
         );
     });
 
     it("should mint token", async function () {
-        await setAllowList(owner, [minter.address], numAllowedToMint);
+        await setAllowList(governanceNFT, owner, [minter.address], numAllowedToMint);
 
         const mintTx = await governanceNFT.connect(minter).mint({ value: pricePerToken });
         await mintTx.wait(1);
@@ -62,7 +62,7 @@ describe("1-Test NFT contract functions", async () => {
     });
 
     it("should mint all allowed tokens", async function () {
-        await setAllowList(owner, [minter.address], numAllowedToMint);
+        await setAllowList(governanceNFT, owner, [minter.address], numAllowedToMint);
 
         for (let i = 1; i <= numAllowedToMint; i++) {
             const mintTx = await governanceNFT.connect(minter).mint({ value: pricePerToken });
@@ -73,7 +73,7 @@ describe("1-Test NFT contract functions", async () => {
     });
 
     it("should should fail after minted allowed tokens", async function () {
-        await setAllowList(owner, [minter.address], numAllowedToMint);
+        await setAllowList(governanceNFT, owner, [minter.address], numAllowedToMint);
 
         for (let i = 1; i <= numAllowedToMint; i++) {
             const mintTx = await governanceNFT.connect(minter).mint({ value: pricePerToken });
@@ -95,7 +95,7 @@ describe("1-Test NFT contract functions", async () => {
         const supply = ONFT_ARGS["hardhat"].endMintId - ONFT_ARGS["hardhat"].startMintId + 1;
 
         await reserve(governanceNFT, owner, supply);
-        await setAllowList(owner, [minter.address], numAllowedToMint);
+        await setAllowList(governanceNFT, owner, [minter.address], numAllowedToMint);
         await expect(governanceNFT.connect(minter).mint()).revertedWith("Max mint limit reached");
     });
 
@@ -103,9 +103,9 @@ describe("1-Test NFT contract functions", async () => {
         const setTx = await governanceNFT.setBaseURI(NFT_BASE_URI);
         await setTx.wait(1);
 
-        await setAllowList(owner, [minter.address], numAllowedToMint);
+        await setAllowList(governanceNFT, owner, [minter.address], numAllowedToMint);
 
-        await mint(minter);
+        await mint(governanceNFT, minter);
 
         const lastMintedTokenId = (await governanceNFT.nextMintId()).sub(1);
 
@@ -113,8 +113,8 @@ describe("1-Test NFT contract functions", async () => {
     });
 
     it("should withdraw balance by owner", async function () {
-        await setAllowList(owner, [minter.address], numAllowedToMint);
-        await mint(minter);
+        await setAllowList(governanceNFT, owner, [minter.address], numAllowedToMint);
+        await mint(governanceNFT, minter);
 
         const contractBalanceBefore = await ethers.provider.getBalance(governanceNFT.address);
         expect(contractBalanceBefore).equal(pricePerToken);
@@ -131,8 +131,8 @@ describe("1-Test NFT contract functions", async () => {
     });
 
     it("should fail withdraw by NOT owner ", async function () {
-        await setAllowList(owner, [minter.address], numAllowedToMint);
-        await mint(minter);
+        await setAllowList(governanceNFT, owner, [minter.address], numAllowedToMint);
+        await mint(governanceNFT, minter);
 
         const contractBalanceBefore = await ethers.provider.getBalance(governanceNFT.address);
         expect(contractBalanceBefore).equal(pricePerToken);

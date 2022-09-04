@@ -15,7 +15,7 @@ import { reserve } from "../utils/governanceNFT-utils";
 describe("2-0-Propose to Governor", async () => {
     let governor: GovernorContract;
     let governanceNFT: GovernanceNFT;
-    let notOwnerNFT: GovernanceNFT;
+    let outsideNFT: GovernanceNFT;
 
     let owner: SignerWithAddress, notOwner: SignerWithAddress;
 
@@ -27,8 +27,8 @@ describe("2-0-Propose to Governor", async () => {
         await reserve(governanceNFT, owner, 1);
 
         await deployments.fixture(["all", "GovernanceNFT", "fakeNFT"])
-        notOwnerNFT = await ethers.getContract("GovernanceNFT");
-        await reserve(notOwnerNFT, owner, 1);
+        outsideNFT = await ethers.getContract("GovernanceNFT");
+        await reserve(outsideNFT, owner, 1);
     });
 
     it("should return governor name", async function () {
@@ -58,13 +58,13 @@ describe("2-0-Propose to Governor", async () => {
         })
         
         it('[ERROR] should fail if set a new from not owner address', async function () {
-            await expect(governor.connect(notOwner).addToken(notOwnerNFT.address)).revertedWith(
+            await expect(governor.connect(notOwner).addToken(outsideNFT.address)).revertedWith(
                 "Ownable: caller is not the owner"
             );
         })
         
         it('add new token address into DAO', async function () {
-            await governor.connect(owner).addToken(notOwnerNFT.address)
+            await governor.connect(owner).addToken(outsideNFT.address)
             expect(await governor.getTokensLength()).equal(2)
         })
         
@@ -77,7 +77,7 @@ describe("2-0-Propose to Governor", async () => {
 
         it('[ERROR] add same address into DAO', async function() {
             expect(await governor.getTokensLength()).equal(2)
-            await expect(governor.connect(owner).addToken(notOwnerNFT.address)).revertedWith(
+            await expect(governor.connect(owner).addToken(outsideNFT.address)).revertedWith(
                 "GovernorVotes: This address is already exist"
             );
         })

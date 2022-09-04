@@ -26,7 +26,7 @@ describe("0-0-GovernorContract", function () {
       const { GovernorContract, GovernanceNFT } = await loadFixture(deployFixture);
       await expect(
         GovernorContract.addToken(GovernanceNFT.address)).to.be.revertedWith(
-          "This address is already exsist");
+          "GovernorVotes: This address is already exist");
     })
 
     it("Add zero address", async function() {

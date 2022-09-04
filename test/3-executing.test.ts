@@ -31,13 +31,16 @@ describe("3-Executing proposals in Governor", async () => {
         await reserve(governanceNFT, owner, 2);
         await delegate(governanceNFT, owner, owner.address);
 
-        await transferNFT(owner, proposer.address, 1);
+        await transferNFT(governanceNFT, owner, proposer.address, 1);
         await delegate(governanceNFT, proposer, proposer.address);
 
         await deployments.fixture(["all", "GovernanceNFT", "fakeNFT"])
         outsideNFT = await ethers.getContract("GovernanceNFT");
         await reserve(outsideNFT, owner, 2);
-        await delegate(outsideNFT, owner, owner.address)
+        await transferNFT(outsideNFT, owner, proposer.address, 1);
+        await delegate(outsideNFT, proposer, proposer.address)
+        governor.addToken(outsideNFT.address);
+        
     });
 
     const createProposal = async (signer: SignerWithAddress, tokenAddress: GovernanceNFT): Promise<number> => {
@@ -186,6 +189,37 @@ describe("3-Executing proposals in Governor", async () => {
 
     it("should fail cancel proposal", async function () {
         await createProposal(proposer, governanceNFT);
+        await expect(
+            governor
+                .connect(failCanceler)
+                .cancel(
+                    [governor.address],
+                    [0],
+                    [encodedFunctionCall],
+                    ethers.utils.id(PROPOSAL_DESCRIPTION)
+                )
+        ).revertedWith("Not proposer or owner");
+    });
+
+    // MULTITOKENS
+    it("should cancel proposal by proposer", async function () {
+        const proposalId = await createProposal(proposer, outsideNFT);
+
+        const cancelTx = await governor
+            .connect(proposer)
+            .cancel(
+                [governor.address],
+                [0],
+                [encodedFunctionCall],
+                ethers.utils.id(PROPOSAL_DESCRIPTION)
+            );
+        await cancelTx.wait(1);
+
+        expect(await governor.state(proposalId)).equal(2);
+    });
+
+    it("should fail cancel proposal", async function () {
+        await createProposal(proposer, outsideNFT);
         await expect(
             governor
                 .connect(failCanceler)

@@ -17,11 +17,12 @@ export const delegate = async (_governanceNFT: any, signer: SignerWithAddress, d
 };
 
 export const transferNFT = async (
+    _governanceNFT: any,
     signer: SignerWithAddress,
     to: string,
     numberOfTokens: number
 ) => {
-    const governanceNFT = await ethers.getContract("GovernanceNFT");
+    const governanceNFT = _governanceNFT;
 
     for (let i = 0; i < numberOfTokens; i++) {
         const tokenId = await governanceNFT.tokenOfOwnerByIndex(signer.address, 0);
@@ -30,20 +31,21 @@ export const transferNFT = async (
 };
 
 export const setAllowList = async (
+    _governanceNFT: any,
     signer: SignerWithAddress,
     addresses: string[],
     numAllowedToMint: number
 ) => {
-    const governanceNFT = await ethers.getContract("GovernanceNFT");
+    const governanceNFT = _governanceNFT;
 
     const setTx = await governanceNFT.connect(signer).setAllowList(addresses, numAllowedToMint);
     await setTx.wait(1);
 };
 
-export const mint = async (signer: SignerWithAddress) => {
+export const mint = async (_governanceNFT: any, signer: SignerWithAddress) => {
     const pricePerToken = ethers.utils.parseEther(NFT_PRICE);
 
-    const governanceNFT = await ethers.getContract("GovernanceNFT");
+    const governanceNFT = _governanceNFT;
 
     const mintTx = await governanceNFT.connect(signer).mint({ value: pricePerToken });
     await mintTx.wait(1);

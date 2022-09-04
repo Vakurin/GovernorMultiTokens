@@ -42,8 +42,4 @@ describe("0-1-MyContract", function () {
         
     })
   });
-
-  
-
- 
 });

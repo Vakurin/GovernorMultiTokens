@@ -1,4 +1,3 @@
-// COMPILITE
 import {ethers, deployments} from "hardhat";
 import {GovernorContract, GovernanceNFT} from "../typechain-types";
 import {expect} from "chai";
@@ -71,7 +70,7 @@ describe("2-1-Propose to Governor", async () => {
         expect(await governor.getTokensLength()).to.equal(2);
         await moveBlocks(VOTING_DELAY + 1);
         const proposalId = await createProposal(owner, outsideNFT);
-        console.log(`Proposal with id(${proposalId}) created.`)
+        DEBUG ? console.log(`Proposal with id(${proposalId}) created.`) : ''
         expect(await governor.state(proposalId)).to.equal(0);
     })
 
