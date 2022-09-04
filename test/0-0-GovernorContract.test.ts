@@ -3,7 +3,7 @@ import { ADDRESS_ZERO } from "../helper-hardhat-config";
 
 // Loading delpoy functions
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { deployFixture } from "./helpers-for-deploy";
+import { deployFixture } from "../utils/helpers-for-test";
 
 
 describe("0-0-GovernorContract", function () {
